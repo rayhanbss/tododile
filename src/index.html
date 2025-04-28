@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
     <script src="./app.js" defer></script>
+    <link rel="icon" type="image/x-icon" href="../assets/logo-tododile.png" />
     <link href="./output.css" rel="stylesheet" />
+    <title>ToDoDile</title>
   </head>
   <body
     class="font-mono absolute inset-0 h-full w-full bg-white bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"
@@ -41,37 +43,12 @@
       class="mx-auto flex flex-col max-w-7xl items-center w-full p-8 lg:px-8"
       aria-label="Global"
     >
-      <!-- login Form -->
+      <!-- login Form container (empty, will be populated by JS) -->
       <div
         id="loginFormContainer"
         class="fixed inset-0 bg-transparent items-center justify-center z-50 hidden"
-      >
-        <div
-          class="bg-white border-4 border-emerald-600 shadow-xl p-6 w-full max-w-md"
-        >
-          <h2 class="text-xl font-semibold mb-4">Welcome to ToDoDile!</h2>
-          <form>
-            <div class="mb-4">
-              <label class="block text-sm font-medium mb-1"
-                >Type in your username</label
-              >
-              <input
-                type="text"
-                name="username"
-                class="w-full px-4 py-2 border-2 border-emerald-500 focus:outline-none focus:border-emerald-600"
-                placeholder="username"
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              class="w-full bg-emerald-600 text-white py-2 hover:bg-emerald-700 transition"
-            >
-              Let's get started!
-            </button>
-          </form>
-        </div>
-      </div>
+      ></div>
+
       <!-- Main content -->
       <div
         id="addTaskContainer"

@@ -16,43 +16,121 @@ function greetUser() {
   }
 }
 
+function postNewUser(userData) {
+  $.ajax({
+    url: "../data/todos.json",
+    type: "GET",
+    dataType: "json",
+    success: function (existingData) {
+      // Add the new user to the users array
+      if (!existingData.users) {
+        existingData.users = [];
+      }
+      existingData.users.push(userData);
+
+      // Save the updated data
+      $.ajax({
+        url: "../data/todos.json",
+        type: "POST",
+        dataType: "json",
+        data: JSON.stringify(existingData),
+        contentType: "application/json",
+        success: function (response) {
+          console.log("User created successfully:", response);
+        },
+        error: function (error) {
+          console.error("Error creating user:", error);
+        },
+      });
+    },
+    error: function (error) {
+      console.error("Error reading existing data:", error);
+    },
+  });
+}
+
+function getUserData(username) {
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      url: "../data/todos.json",
+      type: "GET",
+      dataType: "json",
+      success: function (data) {
+        // Access the users array from the data object
+        const users = data.users || [];
+        const userData = users.find((user) => user.name === username);
+
+        if (userData) {
+          console.log(userData);
+          resolve(userData);
+        } else {
+          console.log("User not found!, Creating new user...");
+          const newUserData = { name: username, todos: [] };
+          postNewUser(newUserData);
+          resolve(newUserData);
+        }
+      },
+      error: function (error) {
+        console.error("Error fetching user data:", error);
+        reject(error);
+      },
+    });
+  });
+}
+
 $(document).ready(function () {
-  //   localStorage.clear();
-  const storedUserJSON = localStorage.getItem("currentUser");
-  const $loginFormContainer = $("#loginFormContainer");
-  const $usernameElement = $("#username");
+  // localStorage.clear();
+  const userStored = JSON.parse(localStorage.getItem("currentUser"));
+  const currentPage = window.location.pathname.split("/").pop();
 
-  function showLoginForm() {
-    $loginFormContainer.removeClass("hidden").addClass("flex");
-  }
+  // Handle index.html (main page)
+  if (currentPage === "index.html" || currentPage === "") {
+    const $usernameElement = $("#username");
 
-  function hideLoginForm() {
-    $loginFormContainer.addClass("hidden").removeClass("flex");
-  }
-
-  if (storedUserJSON) {
-    const storedUser = JSON.parse(storedUserJSON);
-    let greetText = greetUser();
-    $usernameElement.text(`${greetText}, ${storedUser}!`);
-    hideLoginForm();
-  } else {
-    showLoginForm();
-    $usernameElement.text("Welcome!");
-  }
-
-  const $loginForm = $loginFormContainer.find("form");
-  $loginForm.on("submit", function (event) {
-    event.preventDefault();
-    const $usernameInput = $(this).find('input[type="text"]');
-    const username = capitalizeFirst($usernameInput.val().trim());
-
-    if (username) {
-      let serialized_data = JSON.stringify(username, null, 2);
-      localStorage.setItem("currentUser", serialized_data);
-
+    if (userStored) {
+      const username = userStored.name;
       let greetText = greetUser();
       $usernameElement.text(`${greetText}, ${username}!`);
-      hideLoginForm();
+      console.log(localStorage.getItem("currentUser"));
+
+      // Create todo list container if it doesn't exist
+      if ($("#todoListContainer").length === 0) {
+        $("#addTaskContainer").after(
+          '<div id="todoListContainer" class="w-full mt-8"></div>'
+        );
+      }
+    } else {
+      // No user found, redirect to login page
+      window.location.href = "login.html";
     }
-  });
+  }
+
+  // Handle login.html page
+  if (currentPage === "login.html") {
+    if (userStored) {
+      window.location.href = "index.html";
+      return;
+    }
+
+    // Handle login form submission
+    $("form").on("submit", function (event) {
+      event.preventDefault();
+      const $usernameInput = $(this).find('input[name="username"]');
+      const username = capitalizeFirst($usernameInput.val().trim());
+
+      if (username) {
+        getUserData(username)
+          .then((userData) => {
+            // Store user data in localStorage
+            localStorage.setItem("currentUser", JSON.stringify(userData));
+            console.log(localStorage.getItem("currentUser"));
+            // Redirect to main page
+            window.location.href = "index.html";
+          })
+          .catch((error) => {
+            console.error("Error fetching user data:", error);
+          });
+      }
+    });
+  }
 });
