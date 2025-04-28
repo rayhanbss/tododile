@@ -1,22 +1,44 @@
 {
   "users": [
     {
-      "id": 1,
-      "name": "Akhmad",
-      "todos": [
-        { "id": 1, "title": "Buy groceries", "completed": false },
-        { "id": 2, "title": "Finish project report", "completed": true },
-        { "id": 3, "title": "Book flight tickets", "completed": false },
-        { "id": 4, "title": "Schedule dentist appointment", "completed": true }
-      ]
+      "id": "1",
+      "name": "Akhmad"
     },
     {
-      "id": 2,
-      "name": "Supardi",
-      "todos": [
-        { "id": 1, "title": "Buy groceries", "completed": false },
-        { "id": 2, "title": "Finish project report", "completed": true }
-      ]
+      "id": "2",
+      "name": "Supardi"
+    }
+  ],
+  "todos": [
+    {
+      "id": "1",
+      "userId": 1,
+      "title": "Buy groceries",
+      "completed": false
+    },
+    {
+      "id": "2",
+      "userId": 1,
+      "title": "Read a book",
+      "completed": false
+    },
+    {
+      "id": "3",
+      "userId": 2,
+      "title": "Write a blog post",
+      "completed": false
+    },
+    {
+      "id": "4",
+      "userId": 2,
+      "title": "Learn a new programming language",
+      "completed": true
+    },
+    {
+      "id": "5",
+      "userId": 2,
+      "title": "Go for a run",
+      "completed": false
     }
   ]
 }

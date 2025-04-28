@@ -40,16 +40,10 @@
     </header>
     <!-- Main -->
     <main
-      class="mx-auto flex flex-col max-w-7xl items-center w-full p-8 lg:px-8"
+      class="mx-auto flex flex-col max-w-7xl items-center w-full p-4 lg:px-8"
       aria-label="Global"
     >
-      <!-- login Form container (empty, will be populated by JS) -->
-      <div
-        id="loginFormContainer"
-        class="fixed inset-0 bg-transparent items-center justify-center z-50 hidden"
-      ></div>
-
-      <!-- Main content -->
+      <!-- Add Task -->
       <div
         id="addTaskContainer"
         class="w-full mx-auto flex items-center justify-between"
@@ -72,6 +66,11 @@
           </div>
         </form>
       </div>
+
+      <div
+        id="todoListContainer"
+        class="mx-auto flex-col item centered w-full space-y-4 py-4 lg:py-8"
+      ></div>
     </main>
   </body>
 </html>

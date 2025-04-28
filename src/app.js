@@ -16,58 +16,83 @@ function greetUser() {
   }
 }
 
-function postNewUser(userData) {
-  $.ajax({
-    url: "../data/todos.json",
-    type: "GET",
-    dataType: "json",
-    success: function (existingData) {
-      // Add the new user to the users array
-      if (!existingData.users) {
-        existingData.users = [];
-      }
-      existingData.users.push(userData);
+function postNewUser(username) {
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      url: "http://localhost:3000/users",
+      type: "GET",
+      dataType: "json",
+      success: function (existingUsers) {
+        if (!existingUsers) {
+          existingUsers = [];
+        }
+        const length = existingUsers.length;
+        const userData = {
+          id: length + 1,
+          name: username,
+        };
 
-      // Save the updated data
-      $.ajax({
-        url: "../data/todos.json",
-        type: "POST",
-        dataType: "json",
-        data: JSON.stringify(existingData),
-        contentType: "application/json",
-        success: function (response) {
-          console.log("User created successfully:", response);
-        },
-        error: function (error) {
-          console.error("Error creating user:", error);
-        },
-      });
-    },
-    error: function (error) {
-      console.error("Error reading existing data:", error);
-    },
+        $.ajax({
+          url: "http://localhost:3000/users",
+          type: "POST",
+          dataType: "json",
+          data: JSON.stringify(userData),
+          contentType: "application/json",
+          success: function (response) {
+            console.log("User created successfully:", response);
+            resolve(response);
+          },
+          error: function (error) {
+            console.error("Error creating user:", error);
+            reject(error);
+          },
+        });
+      },
+      error: function (error) {
+        console.error("Error reading existing data:", error);
+        reject(error);
+      },
+    });
   });
 }
 
 function getUserData(username) {
   return new Promise((resolve, reject) => {
     $.ajax({
-      url: "../data/todos.json",
+      url: `http://localhost:3000/users?name=${username}`,
       type: "GET",
       dataType: "json",
       success: function (data) {
-        // Access the users array from the data object
-        const users = data.users || [];
-        const userData = users.find((user) => user.name === username);
+        const userData = data[0] || null;
+        console.log("User data fetched successfully:", userData);
 
         if (userData) {
-          console.log(userData);
-          resolve(userData);
+          // Fetch todos for this user
+          $.ajax({
+            url: `http://localhost:3000/todos?userId=${userData.id}`,
+            type: "GET",
+            dataType: "json",
+            success: function (todosData) {
+              // Add todos to the user object
+              userData.todos = todosData || [];
+              console.log("User with todos:", userData);
+              resolve(userData);
+            },
+            error: function (error) {
+              console.error("Error fetching todos:", error);
+              // Still resolve with user data even if todos fetch fails
+              userData.todos = [];
+              resolve(userData);
+            },
+          });
         } else {
-          console.log("User not found!, Creating new user...");
-          const newUserData = { name: username, todos: [] };
-          postNewUser(newUserData);
-          resolve(newUserData);
+          console.log("User not found!, creating new user...");
+          postNewUser(username).then((userData) => {
+            console.log("User created successfully:", userData);
+            // New user has no todos yet
+            userData.todos = [];
+            resolve(userData);
+          });
         }
       },
       error: function (error) {
@@ -76,6 +101,88 @@ function getUserData(username) {
       },
     });
   });
+}
+
+function todoCard(id, title, completed) {
+  const statusText = completed ? "Completed" : "Pending";
+  const borderColor = completed ? "border-emerald-500" : "border-amber-500";
+  const bgColor = completed ? "bg-emerald-100" : "bg-amber-100";
+
+  const $todoCard = $(
+    `<div class="todo-card bg-opacity-10 ${bgColor} text-emerald-800 border ${borderColor} flex justify-between items-center px-4 py-2">
+      <h3 class="font-medium cursor-pointer hover:${
+        completed ? "text-emerald-600" : "text-amber-600"
+      }" id="${id}">${title}</h3>
+      <p class="text-sm"> <span class="${
+        completed ? "text-emerald-600" : "text-amber-600"
+      }">${statusText}</span></p>
+    </div>`
+  );
+  return $todoCard;
+}
+
+function loadTodoList(userData) {
+  const $todoListContainer = $("#todoListContainer");
+  if (userData && userData.todos && userData.todos.length > 0) {
+    $todoListContainer.empty(); // Clear existing todos
+    userData.todos.forEach((todo) => {
+      const todoCardElement = todoCard(todo.id, todo.title, todo.completed);
+      $todoListContainer.append(todoCardElement);
+    });
+    console.log("Loaded todos:", userData.todos.length);
+  } else {
+    $todoListContainer.empty();
+    $todoListContainer.append("<h3>Your task is empty</h3>");
+    console.log("No todos found for this user.");
+  }
+}
+
+function toogleTodo(userData) {
+  const $todoListContainer = $("#todoListContainer");
+
+  // Use event delegation to handle clicks on todo items
+  $todoListContainer
+    .off("click", ".todo-card h3")
+    .on("click", ".todo-card h3", function (event) {
+      event.preventDefault(); // Prevent default behavior
+
+      const todoId = $(this).attr("id");
+      const todoCompleted =
+        $(this).closest(".todo-card").find("p span").text() === "Completed"
+          ? false
+          : true;
+
+      const updatedTodo = {
+        completed: todoCompleted,
+      };
+
+      $.ajax({
+        url: `http://localhost:3000/todos/${todoId}`,
+        type: "PATCH",
+        dataType: "json",
+        data: JSON.stringify(updatedTodo),
+        contentType: "application/json",
+        success: function (response) {
+          console.log("Todo updated successfully:", response);
+
+          // Update the local userData to reflect the change
+          const todoIndex = userData.todos.findIndex(
+            (todo) => todo.id == todoId
+          );
+          if (todoIndex !== -1) {
+            userData.todos[todoIndex].completed = todoCompleted;
+            localStorage.setItem("currentUser", JSON.stringify(userData));
+          }
+
+          loadTodoList(userData);
+        },
+        error: function (error) {
+          console.error("Error updating todo:", error);
+        },
+      });
+
+      return false; // Prevent event bubbling
+    });
 }
 
 $(document).ready(function () {
@@ -93,14 +200,69 @@ $(document).ready(function () {
       $usernameElement.text(`${greetText}, ${username}!`);
       console.log(localStorage.getItem("currentUser"));
 
-      // Create todo list container if it doesn't exist
       if ($("#todoListContainer").length === 0) {
-        $("#addTaskContainer").after(
-          '<div id="todoListContainer" class="w-full mt-8"></div>'
-        );
+        console.error("Todo list container not found in the DOM");
+      } else {
+        console.log("Loading todo list...");
+        loadTodoList(userStored);
+        toogleTodo(userStored);
       }
+
+      // Add task form submission
+      $("#addTaskContainer form").on("submit", function (event) {
+        event.preventDefault();
+        const $taskInput = $(this).find('input[name="task"]');
+        const taskTitle = $taskInput.val().trim();
+
+        if (taskTitle) {
+          // Get latest todos to find the next ID
+          $.ajax({
+            url: "http://localhost:3000/todos",
+            type: "GET",
+            dataType: "json",
+            success: function (todos) {
+              const nextId =
+                todos.length > 0 ? Math.max(...todos.map((t) => t.id)) + 1 : 1;
+
+              const newTodo = {
+                id: nextId,
+                userId: userStored.id,
+                title: taskTitle,
+                completed: false,
+              };
+
+              $.ajax({
+                url: "http://localhost:3000/todos",
+                type: "POST",
+                dataType: "json",
+                data: JSON.stringify(newTodo),
+                contentType: "application/json",
+                success: function (response) {
+                  console.log("Todo created successfully:", response);
+
+                  // Update local userData
+                  userStored.todos.push(response);
+                  localStorage.setItem(
+                    "currentUser",
+                    JSON.stringify(userStored)
+                  );
+
+                  // Clear input and reload todo list
+                  $taskInput.val("");
+                  loadTodoList(userStored);
+                },
+                error: function (error) {
+                  console.error("Error creating todo:", error);
+                },
+              });
+            },
+            error: function (error) {
+              console.error("Error fetching todos:", error);
+            },
+          });
+        }
+      });
     } else {
-      // No user found, redirect to login page
       window.location.href = "login.html";
     }
   }
