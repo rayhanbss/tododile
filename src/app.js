@@ -67,20 +67,17 @@ function getUserData(username) {
         console.log("User data fetched successfully:", userData);
 
         if (userData) {
-          // Fetch todos for this user
           $.ajax({
             url: `http://localhost:3000/todos?userId=${userData.id}`,
             type: "GET",
             dataType: "json",
             success: function (todosData) {
-              // Add todos to the user object
               userData.todos = todosData || [];
               console.log("User with todos:", userData);
               resolve(userData);
             },
             error: function (error) {
               console.error("Error fetching todos:", error);
-              // Still resolve with user data even if todos fetch fails
               userData.todos = [];
               resolve(userData);
             },
@@ -89,7 +86,6 @@ function getUserData(username) {
           console.log("User not found!, creating new user...");
           postNewUser(username).then((userData) => {
             console.log("User created successfully:", userData);
-            // New user has no todos yet
             userData.todos = [];
             resolve(userData);
           });
@@ -111,14 +107,14 @@ function todoCard(id, title, completed) {
   const $todoCard = $(
     `<div class="cardContainer w-full flex space-x-4">
       <div class="todo-card bg-opacity-10 ${bgColor} text-emerald-800 border ${borderColor} flex flex-grow justify-between items-center px-4 py-2">
-        <h3 class="cursor-pointer hover:${
+        <h3 class="cursor-pointer text-xs lg:text-md hover:${
           completed ? "text-emerald-600" : "text-amber-600"
         }" id="${id}">${title}</h3>
-        <p class="text-sm"> <span class="${
+        <p class="text-xs lg:text-sm"> <span class="${
           completed ? "text-emerald-600" : "text-amber-600"
         }">${statusText}</span></p>
       </div>
-      <button class="deleteBtn bg-emerald-600 px-4 py-2 cursor-pointer text-white hover:bg-red-400" id="delete-${id}">x</button>
+      <button class="deleteBtn bg-emerald-600 px-4 py-2 cursor-pointer text-white text-sm lg:text-base hover:bg-red-400" id="delete-${id}">×</button>
     </div>`
   );
   return $todoCard;
@@ -127,11 +123,10 @@ function todoCard(id, title, completed) {
 function todoListener(userData) {
   const $todoListContainer = $("#todoListContainer");
 
-  // Use event delegation to handle clicks on todo items
   $todoListContainer
     .off("click", ".todo-card h3")
     .on("click", ".todo-card h3", function (event) {
-      event.preventDefault(); // Prevent default behavior
+      event.preventDefault();
 
       const todoId = $(this).attr("id");
       const todoCompleted =
@@ -152,7 +147,6 @@ function todoListener(userData) {
         success: function (response) {
           console.log("Todo updated successfully:", response);
 
-          // Update the local userData to reflect the change
           const todoIndex = userData.todos.findIndex(
             (todo) => todo.id == todoId
           );
@@ -168,7 +162,7 @@ function todoListener(userData) {
         },
       });
 
-      return false; // Prevent event bubbling
+      return false;
     });
 
   $todoListContainer
@@ -185,7 +179,6 @@ function todoListener(userData) {
         success: function (response) {
           console.log("Todo deleted successfully:", response);
 
-          // Remove the todo from the local userData
           userData.todos = userData.todos.filter((todo) => todo.id != todoId);
           localStorage.setItem("currentUser", JSON.stringify(userData));
 
@@ -201,7 +194,7 @@ function todoListener(userData) {
 function loadTodoList(userData) {
   const $todoListContainer = $("#todoListContainer");
   if (userData && userData.todos && userData.todos.length > 0) {
-    $todoListContainer.empty(); // Clear existing todos
+    $todoListContainer.empty();
     userData.todos.forEach((todo) => {
       const todoCardElement = todoCard(todo.id, todo.title, todo.completed);
       $todoListContainer.append(todoCardElement);
@@ -211,7 +204,7 @@ function loadTodoList(userData) {
   } else {
     $todoListContainer.empty();
     $todoListContainer.append(
-      '<h3 class="text-emerald-600 flex justify-center items-center">Your task is empty.</h3>'
+      '<h3 class="text-emerald-800 flex justify-center items-center text-xs lg:text-base">Your task is empty.</h3>'
     );
     console.log("No todos found for this user.");
   }
@@ -250,8 +243,7 @@ function postNewTodos(userData) {
               success: function (response) {
                 console.log("Todo created successfully:", response);
 
-                // Update local userData
-                userData.todos.push(response); // Use userData instead of userStored
+                userData.todos.push(response);
                 localStorage.setItem("currentUser", JSON.stringify(userData));
 
                 $taskInput.val("");
@@ -271,11 +263,9 @@ function postNewTodos(userData) {
 }
 
 $(document).ready(function () {
-  // localStorage.clear();
   const userStored = JSON.parse(localStorage.getItem("currentUser"));
   const currentPage = window.location.pathname.split("/").pop();
 
-  // Handle index.html (main page)
   if (currentPage === "index.html" || currentPage === "") {
     const $usernameElement = $("#username");
     const $logOutBtn = $("#logOutBtn");
@@ -304,14 +294,12 @@ $(document).ready(function () {
     }
   }
 
-  // Handle login.html page
   if (currentPage === "login.html") {
     if (userStored) {
       window.location.href = "index.html";
       return;
     }
 
-    // Handle login form submission
     $("form").on("submit", function (event) {
       event.preventDefault();
       const $usernameInput = $(this).find('input[name="username"]');
@@ -320,10 +308,9 @@ $(document).ready(function () {
       if (username) {
         getUserData(username)
           .then((userData) => {
-            // Store user data in localStorage
             localStorage.setItem("currentUser", JSON.stringify(userData));
             console.log(localStorage.getItem("currentUser"));
-            // Redirect to main page
+
             window.location.href = "index.html";
           })
           .catch((error) => {
