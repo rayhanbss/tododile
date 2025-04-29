@@ -124,7 +124,7 @@ function todoCard(id, title, completed) {
   return $todoCard;
 }
 
-function toggleTodo(userData) {
+function todoListener(userData) {
   const $todoListContainer = $("#todoListContainer");
 
   // Use event delegation to handle clicks on todo items
@@ -206,7 +206,7 @@ function loadTodoList(userData) {
       const todoCardElement = todoCard(todo.id, todo.title, todo.completed);
       $todoListContainer.append(todoCardElement);
     });
-    toggleTodo(userData);
+    todoListener(userData);
     console.log("Loaded todos:", userData.todos.length);
   } else {
     $todoListContainer.empty();
