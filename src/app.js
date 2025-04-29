@@ -121,23 +121,7 @@ function todoCard(id, title, completed) {
   return $todoCard;
 }
 
-function loadTodoList(userData) {
-  const $todoListContainer = $("#todoListContainer");
-  if (userData && userData.todos && userData.todos.length > 0) {
-    $todoListContainer.empty(); // Clear existing todos
-    userData.todos.forEach((todo) => {
-      const todoCardElement = todoCard(todo.id, todo.title, todo.completed);
-      $todoListContainer.append(todoCardElement);
-    });
-    console.log("Loaded todos:", userData.todos.length);
-  } else {
-    $todoListContainer.empty();
-    $todoListContainer.append("<h3>Your task is empty</h3>");
-    console.log("No todos found for this user.");
-  }
-}
-
-function toogleTodo(userData) {
+function toggleTodo(userData) {
   const $todoListContainer = $("#todoListContainer");
 
   // Use event delegation to handle clicks on todo items
@@ -175,6 +159,7 @@ function toogleTodo(userData) {
           }
 
           loadTodoList(userData);
+          toggleTodo(userData); // Re-attach event handlers after updating the todo list
         },
         error: function (error) {
           console.error("Error updating todo:", error);
@@ -182,6 +167,76 @@ function toogleTodo(userData) {
       });
 
       return false; // Prevent event bubbling
+    });
+}
+
+function loadTodoList(userData) {
+  const $todoListContainer = $("#todoListContainer");
+  if (userData && userData.todos && userData.todos.length > 0) {
+    $todoListContainer.empty(); // Clear existing todos
+    userData.todos.forEach((todo) => {
+      const todoCardElement = todoCard(todo.id, todo.title, todo.completed);
+      $todoListContainer.append(todoCardElement);
+    });
+    toggleTodo(userData);
+    console.log("Loaded todos:", userData.todos.length);
+  } else {
+    $todoListContainer.empty();
+    $todoListContainer.append("<h3>Your task is empty</h3>");
+    console.log("No todos found for this user.");
+  }
+}
+
+function postNewTodos(userData) {
+  $("#addTaskContainer form")
+    .off("submit")
+    .on("submit", function (event) {
+      event.preventDefault();
+      const $taskInput = $(this).find('input[name="task"]');
+      const taskTitle = capitalizeFirst($taskInput.val().trim());
+
+      if (taskTitle) {
+        $.ajax({
+          url: "http://localhost:3000/todos",
+          type: "GET",
+          dataType: "json",
+          success: function (todos) {
+            const nextId =
+              todos.length > 0 ? Math.max(...todos.map((t) => t.id)) + 1 : 1;
+
+            const newTodo = {
+              id: toString(nextId),
+              userId: userData.id, // Use userData instead of userStored
+              title: taskTitle,
+              completed: false,
+            };
+
+            $.ajax({
+              url: "http://localhost:3000/todos",
+              type: "POST",
+              dataType: "json",
+              data: JSON.stringify(newTodo),
+              contentType: "application/json",
+              success: function (response) {
+                console.log("Todo created successfully:", response);
+
+                // Update local userData
+                userData.todos.push(response); // Use userData instead of userStored
+                localStorage.setItem("currentUser", JSON.stringify(userData));
+
+                $taskInput.val("");
+                loadTodoList(userData);
+              },
+              error: function (error) {
+                console.error("Error creating todo:", error);
+              },
+            });
+          },
+          error: function (error) {
+            console.error("Error fetching todos:", error);
+          },
+        });
+      }
     });
 }
 
@@ -205,63 +260,8 @@ $(document).ready(function () {
       } else {
         console.log("Loading todo list...");
         loadTodoList(userStored);
-        toogleTodo(userStored);
+        postNewTodos(userStored);
       }
-
-      // Add task form submission
-      $("#addTaskContainer form").on("submit", function (event) {
-        event.preventDefault();
-        const $taskInput = $(this).find('input[name="task"]');
-        const taskTitle = $taskInput.val().trim();
-
-        if (taskTitle) {
-          // Get latest todos to find the next ID
-          $.ajax({
-            url: "http://localhost:3000/todos",
-            type: "GET",
-            dataType: "json",
-            success: function (todos) {
-              const nextId =
-                todos.length > 0 ? Math.max(...todos.map((t) => t.id)) + 1 : 1;
-
-              const newTodo = {
-                id: nextId,
-                userId: userStored.id,
-                title: taskTitle,
-                completed: false,
-              };
-
-              $.ajax({
-                url: "http://localhost:3000/todos",
-                type: "POST",
-                dataType: "json",
-                data: JSON.stringify(newTodo),
-                contentType: "application/json",
-                success: function (response) {
-                  console.log("Todo created successfully:", response);
-
-                  // Update local userData
-                  userStored.todos.push(response);
-                  localStorage.setItem(
-                    "currentUser",
-                    JSON.stringify(userStored)
-                  );
-
-                  // Clear input and reload todo list
-                  $taskInput.val("");
-                  loadTodoList(userStored);
-                },
-                error: function (error) {
-                  console.error("Error creating todo:", error);
-                },
-              });
-            },
-            error: function (error) {
-              console.error("Error fetching todos:", error);
-            },
-          });
-        }
-      });
     } else {
       window.location.href = "login.html";
     }

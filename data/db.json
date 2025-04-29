@@ -39,6 +39,41 @@
       "userId": 2,
       "title": "Go for a run",
       "completed": false
+    },
+    {
+      "id": "6",
+      "title": "makan",
+      "completed": false
+    },
+    {
+      "id": "7",
+      "userId": 1,
+      "title": "Makan apa ya",
+      "completed": false
+    },
+    {
+      "id": "8",
+      "userId": 1,
+      "title": "Gatau sih wkwkwkwk",
+      "completed": false
+    },
+    {
+      "id": "9",
+      "userId": 1,
+      "title": "Makanaw",
+      "completed": false
+    },
+    {
+      "id": "10",
+      "userId": 1,
+      "title": "Tidur",
+      "completed": false
+    },
+    {
+      "id": "[object Undefined]",
+      "userId": "1",
+      "title": "Main",
+      "completed": false
     }
   ]
 }
