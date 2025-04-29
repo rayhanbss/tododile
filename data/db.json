@@ -45,11 +45,6 @@
       "completed": false
     },
     {
-      "id": "6",
-      "title": "makan",
-      "completed": true
-    },
-    {
       "id": "7",
       "userId": 1,
       "title": "Makan apa ya",
@@ -74,9 +69,15 @@
       "completed": true
     },
     {
-      "id": "[object Undefined]",
-      "userId": "1",
-      "title": "Main",
+      "id": "11",
+      "userId": 3,
+      "title": "Tidur",
+      "completed": true
+    },
+    {
+      "id": "12",
+      "userId": 3,
+      "title": "Gatau sih wkwkwkwk",
       "completed": true
     }
   ]

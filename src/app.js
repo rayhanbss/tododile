@@ -109,13 +109,16 @@ function todoCard(id, title, completed) {
   const bgColor = completed ? "bg-emerald-100" : "bg-amber-100";
 
   const $todoCard = $(
-    `<div class="todo-card bg-opacity-10 ${bgColor} text-emerald-800 border ${borderColor} flex justify-between items-center px-4 py-2">
-      <h3 class="font-medium cursor-pointer hover:${
-        completed ? "text-emerald-600" : "text-amber-600"
-      }" id="${id}">${title}</h3>
-      <p class="text-sm"> <span class="${
-        completed ? "text-emerald-600" : "text-amber-600"
-      }">${statusText}</span></p>
+    `<div class="cardContainer w-full flex space-x-4">
+      <div class="todo-card bg-opacity-10 ${bgColor} text-emerald-800 border ${borderColor} flex flex-grow justify-between items-center px-4 py-2">
+        <h3 class="cursor-pointer hover:${
+          completed ? "text-emerald-600" : "text-amber-600"
+        }" id="${id}">${title}</h3>
+        <p class="text-sm"> <span class="${
+          completed ? "text-emerald-600" : "text-amber-600"
+        }">${statusText}</span></p>
+      </div>
+      <button class="deleteBtn bg-emerald-600 px-4 py-2 cursor-pointer text-white hover:bg-red-400" id="delete-${id}">x</button>
     </div>`
   );
   return $todoCard;
@@ -167,6 +170,32 @@ function toggleTodo(userData) {
 
       return false; // Prevent event bubbling
     });
+
+  $todoListContainer
+    .off("click", ".deleteBtn")
+    .on("click", ".deleteBtn", function (event) {
+      event.preventDefault();
+
+      const todoId = $(this).attr("id").split("-")[1];
+
+      $.ajax({
+        url: `http://localhost:3000/todos/${todoId}`,
+        type: "DELETE",
+        dataType: "json",
+        success: function (response) {
+          console.log("Todo deleted successfully:", response);
+
+          // Remove the todo from the local userData
+          userData.todos = userData.todos.filter((todo) => todo.id != todoId);
+          localStorage.setItem("currentUser", JSON.stringify(userData));
+
+          loadTodoList(userData);
+        },
+        error: function (error) {
+          console.error("Error deleting todo:", error);
+        },
+      });
+    });
 }
 
 function loadTodoList(userData) {
@@ -206,8 +235,8 @@ function postNewTodos(userData) {
               todos.length > 0 ? Math.max(...todos.map((t) => t.id)) + 1 : 1;
 
             const newTodo = {
-              id: toString(nextId),
-              userId: userData.id, // Use userData instead of userStored
+              id: nextId.toString(),
+              userId: userData.id,
               title: taskTitle,
               completed: false,
             };
