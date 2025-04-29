@@ -159,7 +159,6 @@ function toggleTodo(userData) {
           }
 
           loadTodoList(userData);
-          toggleTodo(userData); // Re-attach event handlers after updating the todo list
         },
         error: function (error) {
           console.error("Error updating todo:", error);
@@ -182,7 +181,9 @@ function loadTodoList(userData) {
     console.log("Loaded todos:", userData.todos.length);
   } else {
     $todoListContainer.empty();
-    $todoListContainer.append("<h3>Your task is empty</h3>");
+    $todoListContainer.append(
+      '<h3 class="text-emerald-600 flex justify-center items-center">Your task is empty.</h3>'
+    );
     console.log("No todos found for this user.");
   }
 }
@@ -248,11 +249,18 @@ $(document).ready(function () {
   // Handle index.html (main page)
   if (currentPage === "index.html" || currentPage === "") {
     const $usernameElement = $("#username");
+    const $logOutBtn = $("#logOutBtn");
 
     if (userStored) {
       const username = userStored.name;
       let greetText = greetUser();
       $usernameElement.text(`${greetText}, ${username}!`);
+
+      $logOutBtn.on("click", function () {
+        localStorage.removeItem("currentUser");
+        window.location.href = "login.html";
+      });
+
       console.log(localStorage.getItem("currentUser"));
 
       if ($("#todoListContainer").length === 0) {

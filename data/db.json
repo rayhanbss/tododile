@@ -7,6 +7,10 @@
     {
       "id": "2",
       "name": "Supardi"
+    },
+    {
+      "id": 3,
+      "name": "Rayhan"
     }
   ],
   "todos": [
@@ -14,13 +18,13 @@
       "id": "1",
       "userId": 1,
       "title": "Buy groceries",
-      "completed": false
+      "completed": true
     },
     {
       "id": "2",
       "userId": 1,
       "title": "Read a book",
-      "completed": false
+      "completed": true
     },
     {
       "id": "3",
@@ -43,37 +47,37 @@
     {
       "id": "6",
       "title": "makan",
-      "completed": false
+      "completed": true
     },
     {
       "id": "7",
       "userId": 1,
       "title": "Makan apa ya",
-      "completed": false
+      "completed": true
     },
     {
       "id": "8",
       "userId": 1,
       "title": "Gatau sih wkwkwkwk",
-      "completed": false
+      "completed": true
     },
     {
       "id": "9",
       "userId": 1,
       "title": "Makanaw",
-      "completed": false
+      "completed": true
     },
     {
       "id": "10",
       "userId": 1,
       "title": "Tidur",
-      "completed": false
+      "completed": true
     },
     {
       "id": "[object Undefined]",
       "userId": "1",
       "title": "Main",
-      "completed": false
+      "completed": true
     }
   ]
 }
