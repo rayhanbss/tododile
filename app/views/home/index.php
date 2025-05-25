@@ -18,7 +18,7 @@
         aria-label="Global"
       >
         <div class="flex lg:flex-1">
-          <a href="./" class="flex space-x-4 items-center m-1.5 p-1.5">
+          <a href="./home" class="flex space-x-4 items-center m-1.5 p-1.5">
             <img
               class="h-8 lg:h-12 w-auto"
               src="/tododile/public/image/logo-tododile.png"
@@ -38,7 +38,7 @@
           </a>
         </div>
         <div class="flex">
-          <form method="post" action="/tododile/public/?url=auth/logout">
+          <form method="post" action="/tododile/public/login/logout">
             <button
               class="bg-emerald-600 text-white hover:bg-emerald-700 px-6 py-2 cursor-pointer text-xs lg:text-base btn-fixed"
               id="logOutBtn"
@@ -60,7 +60,7 @@
         id="addTaskContainer"
         class="w-full mx-auto flex items-center justify-between"
       >
-        <form class="w-full flex items-center justify-between" method="post" action="/tododile/public/?url=home/addTask">
+        <form class="w-full flex items-center justify-between" method="post" action="/tododile/public/home/addTask">
           <div class="w-full flex items-center space-x-4">
             <input
               type="text"
@@ -84,7 +84,7 @@
           <?php if (!empty($data['tasks'])): ?>
             <?php foreach ($data['tasks'] as $task): ?>
               <li class="flex items-center justify-between py-2">
-                <form method="post" action="/tododile/public/?url=home/updateTask/<?php echo $task['id']; ?>" class="flex-grow flex items-center space-x-2">
+                <form method="post" action="/tododile/public/home/updateTask/<?php echo $task['id']; ?>" class="flex-grow flex items-center space-x-2">
                   <input 
                     type="text" 
                     name="task" 
@@ -97,12 +97,12 @@
                 </form>
                 
                 <!-- Toggle completion status form -->
-                <form method="post" action="/tododile/public/?url=home/toggleStatus/<?php echo $task['id']; ?>" class="toggle-form hidden">
+                <form method="post" action="/tododile/public/home/toggleStatus/<?php echo $task['id']; ?>" class="toggle-form hidden">
                   <input type="hidden" name="completed" value="<?php echo isset($task['completed']) && $task['completed'] ? '0' : '1'; ?>">
                 </form>
                 
                 <!-- Delete form -->
-                <form method="post" action="/tododile/public/?url=home/deleteTask/<?php echo $task['id']; ?>">
+                <form method="post" action="/tododile/public/home/deleteTask/<?php echo $task['id']; ?>">
                   <button type="submit" class="delete-btn text-xs bg-red-500 text-white px-2 py-1 hover:bg-red-700 ml-2 btn-fixed" data-action="delete">Delete</button>
                 </form>
               </li>

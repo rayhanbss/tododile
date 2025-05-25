@@ -13,4 +13,21 @@ class User extends Database {
         }
         return false;
     }
+
+    public function register ($username, $password){
+        $stmt = $this->conn->prepare('SELECT * FROM users WHERE username = ? LIMIT 1');
+        $stmt->bind_param('s', $username);
+        $stmt->execute();
+        if ($stmt->get_result()->num_rows > 0) {
+            return false;
+        }
+
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        $stmt = $this->conn->prepare('INSERT INTO users (username, password) VALUES (?, ?)');
+        $stmt->bind_param('ss', $username, $hashedPassword);
+        if ($stmt->execute()) {
+            return true;
+        }
+        return false;
+    }
 }

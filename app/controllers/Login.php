@@ -2,14 +2,12 @@
 require_once __DIR__ . '/../core/Controller.php';
 require_once __DIR__ . '/../model/User.php';
 
-class Auth extends Controller {
+class Login extends Controller {
     private $userModel;
     public function __construct() {
         $this->userModel = new User();
         if(session_status() === PHP_SESSION_NONE) session_start();
-    }
-
-    public function login() {
+    }    public function index() {
         $error = null;
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $username = $_POST['username'] ?? '';
@@ -18,19 +16,17 @@ class Auth extends Controller {
             if ($user) {
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
-                header('Location: /tododile/public/?url=task/index');
+                header('Location: /tododile/public/home');
                 exit;
             } else {
                 $error = 'Invalid username or password';
             }
         }
-        $this->view('home/login', ['error' => $error]);
-    }
-
-    public function logout() {
+        $this->view('login/index', ['error' => $error]);
+    }    public function logout() {
         session_start();
         session_destroy();
-        header('Location: /tododile/public/?url=home/login');
+        header('Location: /tododile/public/login');
         exit;
     }
 }
