@@ -1,6 +1,8 @@
 <?php
 // Task model for MySQL CRUD
 require_once __DIR__ . '/../core/Database.php';
+require_once __DIR__ . '/../helpers/Validator.php';
+
 
 class Task extends Database {
     public function getAll($user_id) {
@@ -11,8 +13,12 @@ class Task extends Database {
     }
 
     public function add($user_id, $task) {
+        $cleanedTask = Validator::sanitizeInput($task);
+        if(Validator::validateTask($cleanedTask)) {
+            return Validator::validateTask($cleanedTask);
+        }
         $stmt = $this->conn->prepare('INSERT INTO tasks (user_id, task) VALUES (?, ?)');
-        $stmt->bind_param('is', $user_id, $task);
+        $stmt->bind_param('is', $user_id, $cleanedTask);
         return $stmt->execute();
     }
 
@@ -23,8 +29,12 @@ class Task extends Database {
     }
 
     public function update($id, $user_id, $task) {
+        $cleanedTask = Validator::sanitizeInput($task);
+        if(Validator::validateTask($cleanedTask)){
+            return Validator::validateTask($cleanedTask);
+        };
         $stmt = $this->conn->prepare('UPDATE tasks SET task = ? WHERE id = ? AND user_id = ?');
-        $stmt->bind_param('sii', $task, $id, $user_id);
+        $stmt->bind_param('sii', $cleanedTask, $id, $user_id);
         return $stmt->execute();
     }
     

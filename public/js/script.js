@@ -7,32 +7,33 @@ document.addEventListener("DOMContentLoaded", function () {
       const taskForm = taskItem.querySelector("form");
 
       // Toggle edit mode
-      if (this.textContent.trim() === "Edit") {
+      if (this.textContent.trim() === "edit") {
+        // Store original value before entering edit mode
+        taskInput.dataset.original = taskInput.value;
+
         // Enter edit mode
-        this.textContent = "Save";
+        this.textContent = "save";
         taskInput.removeAttribute("readonly");
         // Add Tailwind classes to override focus styles
         taskInput.classList.add(
           "focus:outline-none",
-          "focus:border-emerald-500",
           "focus:border-2",
           "focus:rounded-none"
         );
         taskInput.focus();
-        deleteBtn.textContent = "Discard";
+        deleteBtn.textContent = "close";
         deleteBtn.dataset.action = "discard";
       } else {
         // Save changes
-        this.textContent = "Edit";
+        this.textContent = "edit";
         taskInput.setAttribute("readonly", "readonly");
         // Remove the focus override classes
         taskInput.classList.remove(
           "focus:outline-none",
-          "focus:border-emerald-500",
           "focus:border-2",
           "focus:rounded-none"
         );
-        deleteBtn.textContent = "Delete";
+        deleteBtn.textContent = "delete";
         deleteBtn.dataset.action = "delete";
 
         if (taskInput.value.trim() !== "") {
@@ -51,13 +52,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (this.dataset.action === "discard") {
         e.preventDefault(); // Prevent form submission
-        // Discard changes
-        taskInput.value = taskInput.dataset.original;
+        // Discard changes - restore original value
+        taskInput.value = taskInput.dataset.original || taskInput.value;
         taskInput.setAttribute("readonly", "readonly");
-        editBtn.textContent = "Edit";
-        editBtn.classList.remove("bg-blue-500");
-        editBtn.classList.add("bg-emerald-500");
-        this.textContent = "Delete";
+        // Remove the focus override classes
+        taskInput.classList.remove(
+          "focus:outline-none",
+          "focus:border-2",
+          "focus:rounded-none"
+        );
+        editBtn.textContent = "edit";
+        this.textContent = "delete";
         this.dataset.action = "delete";
       }
       // If action is "delete", let the form submit normally
@@ -85,4 +90,20 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   });
+
+  if (document.getElementById("flashMessage")) {
+    setTimeout(function () {
+      hideToast();
+    }, 3000);
+  }
 });
+
+function hideToast() {
+  var msg = document.getElementById("flashMessage");
+  if (msg) {
+    msg.classList.add("toast-hide");
+    setTimeout(function () {
+      msg.style.display = "none";
+    }, 300);
+  }
+}

@@ -13,16 +13,13 @@
       class="mx-auto flex flex-row justify-center max-w-7xl items-center w-full h-full px-4 sm:px-6 lg:px-8"
     >
       <div
-        class="bg-white border-4 border-emerald-600 shadow-xl p-3 sm:p-6 w-full max-w-md mx-auto space-y-4"
+        class="bg-white border-4 border-emerald-600 shadow-xl p-4 w-full max-w-md mx-auto"
       >
-        <h2 class="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
+        <h2 class="text-lg sm:text-xl font-semibold">
           Welcome Back!
-        </h2>
-        <?php if (!empty($data['error'])): ?>
-          <div class="text-red-600 text-sm mb-2"><?php echo $data['error']; ?></div>
-        <?php endif; ?>        
+        </h2>      
         <form method="post" action="/tododile/public/login">
-          <div class="mb-3 sm:mb-4">
+          <div class=">
             <label class="block text-xs sm:text-sm font-medium mb-1"
               >Type in your username</label
             >
@@ -34,8 +31,13 @@
               value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>"
               required
             />
+            <div class="w-full min-h-4 bg-transparent">
+            <?php if (!empty($_SESSION['flash_message']) && isset($_SESSION['flash_message']['message']['usernameError'])): ?>
+              <div class="text-red-600 text-xs"><?php echo htmlspecialchars($_SESSION['flash_message']['message']['usernameError']); ?></div>
+            <?php endif; ?>
+            </div>
           </div>
-          <div class="mb-3 sm:mb-4">
+          <div class=">
             <label class="block text-xs sm:text-sm font-medium mb-1"
               >Password</label
             >
@@ -46,18 +48,33 @@
               placeholder="password"
               required
             />
+            <div class="w-full min-h-4">
+            <?php if (!empty($_SESSION['flash_message']) && isset($_SESSION['flash_message']['message']['passwordError'])): ?>
+              <div class="text-red-600 text-xs"><?php echo htmlspecialchars($_SESSION['flash_message']['message']['passwordError']); ?></div>
+            <?php endif; ?>
+            </div>
+          </div>
+          <div class="flex items-center my-1">
+            <input type="checkbox" id="rememberme" name="rememberme" class="mr-2 accent-emerald-600">
+            <label for="rememberme" class="text-xs sm:text-sm text-emerald-600">Remember Me</label>
           </div>
           <button
             type="submit"
-            class="w-full bg-emerald-600 text-white py-2 hover:bg-emerald-700 transition text-sm sm:text-base"
+            class="w-full bg-emerald-600 text-white py-2 hover:bg-emerald-700 transition cursor-pointer text-sm sm:text-base"
           >
             Let's get started!
           </button>
+          <div class="w-full flex items-center justify-center min-h-6">
+            <?php if (!empty($_SESSION['flash_message']) && isset($_SESSION['flash_message']['message']['error'])): ?>
+              <div class="w-full text-red-600 text-xs text-center"><?php echo htmlspecialchars($_SESSION['flash_message']['message']['error']); ?></div>
+            <?php endif; ?>
+          </div>
+          <?php if (!empty($_SESSION['flash_message'])) unset($_SESSION['flash_message']); ?>
         </form>
         <div class="flex justify-center">
-          <p class="text-xs sm:text-sm text-gray-500 mt-4">
+          <p class="text-xs sm:text-sm text-gray-500">
             Don't have an account? 
-            <a href="/tododile/public/home/register" class="text-emerald-600 hover:underline">Register here</a>.
+            <a href="/tododile/public/register" class="text-emerald-600 hover:underline">Register here</a>.
           </p>
         </div>
       </div>
